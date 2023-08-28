@@ -1,7 +1,7 @@
 Attribute VB_Name = "Module1"
 Sub importlastweek()
 '   @Author Spencer Shephard
-'   @Version 1.0
+'   @Version 1.1
 '   This macro imports Confirmation (Conf') and Notes data from a receipts workbook pre-transformed by Kristen Lukasik.
 '   Without these transformations, it will produce undefined behavior.
 '   This macro will overwrite most things in the D and E columns of any worksheet it is applied to.
@@ -11,6 +11,7 @@ Sub importlastweek()
 '       -The carrying over of formatting, namely color
 '       -The performance of the aforementioned transformations currently done manually by Kristen.
 
+'   Ver 1.1 Patch notes: Convert format of destination cells to "General" before copying.
 
 '    Select last week's file using a file browse dialog box.
     Dim destwb As Workbook
@@ -44,7 +45,7 @@ Sub importlastweek()
     Range("B65536").End(xlUp).Select
     intbottomrow = ActiveCell.Row
     Range("B7:E" & intbottomrow).Select
-    Application.Goto Reference:="lastweek"
+    ActiveSheet.Names.Add Name:="lastweek", RefersTo:=Selection
     
 '   Define the name to be used in the upcoming vlookup formula, including reference to its scope (which is its own worksheet).
     Dim shname As String
@@ -54,6 +55,7 @@ Sub importlastweek()
     destwb.Sheets("Sheet1").Activate
     Range("B65536").End(xlUp).Select
     intbottomrow = ActiveCell.Row
+    Range("D7:E" & intbottomrow).Cells.NumberFormat = "General"
     Range("D7:D" & intbottomrow).FormulaR1C1 = "=IFNA(IF(VLOOKUP(RC[-2]," & shname & ",3,FALSE)=0,"""",VLOOKUP(RC[-2]," & shname & ",3,FALSE)),"""")"
     Range("E7:E" & intbottomrow).FormulaR1C1 = "=IFNA(IF(VLOOKUP(RC[-3]," & shname & ",4,FALSE)=0,"""",VLOOKUP(RC[-3]," & shname & ",4,FALSE)),"""")"
 
